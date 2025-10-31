@@ -1,8 +1,27 @@
 import { useState } from 'react'
-import logo from '../assets/logo.png'
+import Login from '../pages/Login'  // Import your Login component
+import Signup from '../pages/Signup'  // Import your Signup component
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [authModal, setAuthModal] = useState(null) // null, 'login', or 'signup'
+
+  const handleLoginClick = () => {
+    setAuthModal('login')
+    setIsMenuOpen(false) // Close mobile menu when opening login
+  }
+
+  const handleCloseAuth = () => {
+    setAuthModal(null)
+  }
+
+  const handleSwitchToSignup = () => {
+    setAuthModal('signup')
+  }
+
+  const handleSwitchToLogin = () => {
+    setAuthModal('login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -11,16 +30,16 @@ function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo */}
-<div className="flex items-center space-x-2">
-      <img
-        src="/logo.png"
-        alt="Store Inventory Logo"
-        className="h-10 w-auto"
-      />
-      <h1 className="text-xl font-bold text-gray-800">
-        Store Inventory
-      </h1>
-    </div>
+            <div className="flex items-center space-x-2">
+              <img
+                src="/logo.png"
+                alt="Store Inventory Logo"
+                className="h-10 w-auto"
+              />
+              <h1 className="text-xl font-bold text-gray-800">
+                Store Inventory
+              </h1>
+            </div>
 
             {/* Desktop Navigation Links - Hidden on mobile */}
             <div className="hidden md:flex items-center space-x-8">
@@ -36,8 +55,11 @@ function Header() {
               <a href="#reports" className="text-gray-700 hover:text-blue-600 font-medium transition">
                 Reports
               </a>
-              <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
-                Add Product
+              <button 
+                onClick={handleLoginClick}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
+              >
+                Login
               </button>
             </div>
 
@@ -45,7 +67,7 @@ function Header() {
             <div className="md:hidden flex items-center">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-gray-600"
               >
                 {/* Hamburger Icon */}
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,14 +109,32 @@ function Header() {
                 >
                   Reports
                 </a>
-                <button className="w-full text-left px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-md font-medium">
-                  Add Product
+                <button 
+                  onClick={handleLoginClick}
+                  className="w-full text-left px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-md font-medium"
+                >
+                  Login
                 </button>
               </div>
             </div>
           )}
         </div>
       </nav>
+
+      {/* Auth Modals */}
+      {authModal === 'login' && (
+        <Login 
+          onSwitchToSignup={handleSwitchToSignup}
+          onClose={handleCloseAuth}
+        />
+      )}
+
+      {authModal === 'signup' && (
+        <Signup 
+          onSwitchToLogin={handleSwitchToLogin}
+          onClose={handleCloseAuth}
+        />
+      )}
     </div>
   )
 }
