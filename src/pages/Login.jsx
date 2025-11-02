@@ -5,18 +5,56 @@ function Login({ onSwitchToSignup, onClose }) {
     email: '',
     password: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     })
+    setError('') // Clear error when user starts typing
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Login:', formData)
-    // Add your login logic here
+    setLoading(true)
+    setError('')
+
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/auth'
+      
+      const response = await fetch(`${API_BASE_URL}/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.email, // Django expects 'username' field
+          password: formData.password
+        }),
+        credentials: 'include' // Important for session cookies
+      })
+
+      const data = await response.json()
+      
+      if (response.ok) {
+        console.log('Login successful:', data)
+        alert('Login successful!')
+        onClose() // Close modal on success
+        
+        // You can store user data in context/state here
+        localStorage.setItem('user', JSON.stringify(data))
+        
+      } else {
+        setError(data.error || data.detail || 'Login failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setError('Cannot connect to server. Please make sure the backend is running.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -28,6 +66,7 @@ function Login({ onSwitchToSignup, onClose }) {
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition"
+              disabled={loading}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -44,11 +83,19 @@ function Login({ onSwitchToSignup, onClose }) {
                 <button
                   onClick={onSwitchToSignup}
                   className="font-medium text-blue-600 hover:text-blue-500 transition"
+                  disabled={loading}
                 >
                   Sign up
                 </button>
               </p>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
 
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-4">
@@ -63,7 +110,8 @@ function Login({ onSwitchToSignup, onClose }) {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    disabled={loading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:opacity-50"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -79,7 +127,8 @@ function Login({ onSwitchToSignup, onClose }) {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    disabled={loading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:opacity-50"
                     placeholder="Enter your password"
                   />
                 </div>
@@ -91,7 +140,8 @@ function Login({ onSwitchToSignup, onClose }) {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    disabled={loading}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                     Remember me
@@ -108,9 +158,17 @@ function Login({ onSwitchToSignup, onClose }) {
               <div>
                 <button
                   type="submit"
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition transform hover:scale-105"
+                  disabled={loading}
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  Sign in
+                  {loading ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Signing in...
+                    </div>
+                  ) : (
+                    'Sign in'
+                  )}
                 </button>
               </div>
             </form>
