@@ -17,45 +17,51 @@ function Login({ onSwitchToSignup, onClose }) {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  e.preventDefault()
+  setLoading(true)
+  setError('')
 
-    try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/auth'
-      
-      const response = await fetch(`${API_BASE_URL}/login/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.email, // Django expects 'username' field
-          password: formData.password
-        }),
-        credentials: 'include' // Important for session cookies
-      })
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/auth'
+    
+    const response = await fetch(`${API_BASE_URL}/login/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: formData.email, // Use email as username
+        password: formData.password
+      }),
+      // No credentials: 'include' needed for JWT
+    })
 
-      const data = await response.json()
+    const data = await response.json()
+    
+    if (response.ok) {
+      console.log('Login successful:', data)
       
-      if (response.ok) {
-        console.log('Login successful:', data)
-        alert('Login successful!')
-        onClose() // Close modal on success
-        
-        // You can store user data in context/state here
-        localStorage.setItem('user', JSON.stringify(data))
-        
-      } else {
-        setError(data.error || data.detail || 'Login failed. Please try again.')
-      }
-    } catch (error) {
-      console.error('Login error:', error)
-      setError('Cannot connect to server. Please make sure the backend is running.')
-    } finally {
-      setLoading(false)
+      // Store JWT tokens and user data
+      localStorage.setItem('access_token', data.access)
+      localStorage.setItem('refresh_token', data.refresh)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      
+      alert('Login successful!')
+      onClose()
+      
+      // Optional: Refresh the page or update app state
+      window.location.reload()
+      
+    } else {
+      setError(data.error || 'Login failed. Please try again.')
     }
+  } catch (error) {
+    console.error('Login error:', error)
+    setError('Cannot connect to server. Please make sure the backend is running.')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
