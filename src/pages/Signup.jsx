@@ -41,15 +41,7 @@ function Signup({ onSwitchToLogin, onClose }) {
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">🏪 Store Inventory</h1>
               <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Already have an account?{' '}
-                <button
-                  onClick={onSwitchToLogin}
-                  className="font-medium text-green-600 hover:text-green-500 transition"
-                >
-                  Sign in
-                </button>
-              </p>
+
             </div>
 
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -122,11 +114,19 @@ function Signup({ onSwitchToLogin, onClose }) {
               <div>
                 <button
                   type="submit"
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition transform hover:scale-105"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition transform hover:scale-105"
                 >
                   Create account
                 </button>
-              </div>
+              <p className="mt-10 text-sm text-gray-600">
+                Already have an account?{' '}
+                <button
+                  onClick={onSwitchToLogin}
+                  className="font-medium text-blue-600 hover:text-blue-500 transition"
+                >
+                  Sign in
+                </button>
+              </p>              </div>
             </form>
           </div>
         </div>
