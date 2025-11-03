@@ -39,7 +39,7 @@ function Signup({ onSwitchToLogin, onClose }) {
   try {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://storeinventory-backend.onrender.com'
     
-    const response = await fetch(`${API_BASE_URL}/register/`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
