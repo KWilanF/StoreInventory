@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Login({ onSwitchToSignup, onClose }) {
+function Login({ onSwitchToSignup, onClose, onLoginSuccess }) {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -13,55 +13,51 @@ function Login({ onSwitchToSignup, onClose }) {
       ...formData,
       [e.target.name]: e.target.value
     })
-    setError('') // Clear error when user starts typing
+    setError('')
   }
 
   const handleSubmit = async (e) => {
-  e.preventDefault()
-  setLoading(true)
-  setError('')
+    e.preventDefault()
+    setLoading(true)
+    setError('')
 
-  try {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://storeinventory-backend.onrender.com'
-    
-    const response = await fetch(`${API_BASE_URL}/api/auth/login/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: formData.email, // Use email as username
-        password: formData.password
-      }),
-      // No credentials: 'include' needed for JWT
-    })
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://storeinventory-backend.onrender.com'
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.email,
+          password: formData.password
+        }),
+      })
 
-    const data = await response.json()
-    
-    if (response.ok) {
-      console.log('Login successful:', data)
+      const data = await response.json()
       
-      // Store JWT tokens and user data
-      localStorage.setItem('access_token', data.access)
-      localStorage.setItem('refresh_token', data.refresh)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      
-      alert('Login successful!')
-      onClose()
-      
-      // Optional: Refresh the page or update app state
-      window.location.reload()
-      
-    } else {
-      setError(data.error || 'Login failed. Please try again.')
+      if (response.ok) {
+        console.log('Login successful:', data)
+        
+        // Store JWT tokens and user data
+        localStorage.setItem('access_token', data.access)
+        localStorage.setItem('refresh_token', data.refresh)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        
+        // Call the success callback
+        onLoginSuccess()
+        
+      } else {
+        setError(data.detail || data.error || 'Login failed. Please check your credentials.')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setError('Cannot connect to server. Please try again later.')
+    } finally {
+      setLoading(false)
     }
-  } catch (error) {
-    console.error('Login error:', error)
-    setError('Cannot connect to server. Please make sure the backend is running.')
-  } finally {
-    setLoading(false)
   }
-}
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

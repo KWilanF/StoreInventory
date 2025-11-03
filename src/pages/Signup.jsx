@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Signup({ onSwitchToLogin, onClose }) {
+function Signup({ onSwitchToLogin, onClose, onSignupSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,78 +15,73 @@ function Signup({ onSwitchToLogin, onClose }) {
       ...formData,
       [e.target.name]: e.target.value
     })
-    setError('') // Clear error when user starts typing
+    setError('')
   }
 
   const handleSubmit = async (e) => {
-  e.preventDefault()
-  setLoading(true)
-  setError('')
+    e.preventDefault()
+    setLoading(true)
+    setError('')
 
-  // Validation
-  if (formData.password !== formData.confirmPassword) {
-    setError("Passwords don't match!")
-    setLoading(false)
-    return
-  }
-
-  if (formData.password.length < 6) {
-    setError("Password must be at least 6 characters long")
-    setLoading(false)
-    return
-  }
-
-  try {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://storeinventory-backend.onrender.com'
-    
-    const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: formData.email, // Use email as username
-        email: formData.email,
-        password: formData.password,
-        first_name: formData.name
-      }),
-    })
-
-    const data = await response.json()
-    
-    if (response.ok) {
-      console.log('Registration successful:', data)
-      
-      // Store JWT tokens and user data
-      localStorage.setItem('access_token', data.access)
-      localStorage.setItem('refresh_token', data.refresh)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      
-      alert('Account created successfully! You are now logged in.')
-      onClose()
-      
-      // Optional: Refresh the page or update app state
-      window.location.reload()
-      
-    } else {
-      // Handle different error cases
-      if (data.username) {
-        setError(`Username/Email already exists: ${data.username[0]}`)
-      } else if (data.email) {
-        setError(`Email error: ${data.email[0]}`)
-      } else if (data.password) {
-        setError(`Password error: ${data.password[0]}`)
-      } else {
-        setError(data.error || 'Registration failed. Please try again.')
-      }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords don't match!")
+      setLoading(false)
+      return
     }
-  } catch (error) {
-    console.error('Registration error:', error)
-    setError('Cannot connect to server. Please make sure the backend is running.')
-  } finally {
-    setLoading(false)
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long")
+      setLoading(false)
+      return
+    }
+
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://storeinventory-backend.onrender.com'
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.email,
+          email: formData.email,
+          password: formData.password,
+          first_name: formData.name
+        }),
+      })
+
+      const data = await response.json()
+      
+      if (response.ok) {
+        console.log('Registration successful:', data)
+        
+        // Store JWT tokens and user data
+        localStorage.setItem('access_token', data.access)
+        localStorage.setItem('refresh_token', data.refresh)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        
+        // Call the success callback
+        onSignupSuccess()
+        
+      } else {
+        if (data.username) {
+          setError(`Username/Email already exists: ${data.username[0]}`)
+        } else if (data.email) {
+          setError(`Email error: ${data.email[0]}`)
+        } else if (data.password) {
+          setError(`Password error: ${data.password[0]}`)
+        } else {
+          setError(data.detail || data.error || 'Registration failed. Please try again.')
+        }
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      setError('Cannot connect to server. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
