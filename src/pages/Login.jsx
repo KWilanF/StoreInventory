@@ -80,16 +80,7 @@ function Login({ onSwitchToSignup, onClose, onLoginSuccess }) {
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">🏪 Store Inventory</h1>
               <h2 className="text-2xl font-bold text-gray-900">Sign in to your account</h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Don't have an account?{' '}
-                <button
-                  onClick={onSwitchToSignup}
-                  className="font-medium text-blue-600 hover:text-blue-500 transition"
-                  disabled={loading}
-                >
-                  Sign up
-                </button>
-              </p>
+
             </div>
 
             {/* Error Message */}
@@ -172,6 +163,16 @@ function Login({ onSwitchToSignup, onClose, onLoginSuccess }) {
                     'Sign in'
                   )}
                 </button>
+              <p className="mt-2 text-sm text-gray-600">
+                Don't have an account?{' '}
+                <button
+                  onClick={onSwitchToSignup}
+                  className="font-medium text-blue-600 hover:text-blue-500 transition"
+                  disabled={loading}
+                >
+                  Sign up
+                </button>
+              </p>
               </div>
             </form>
           </div>
