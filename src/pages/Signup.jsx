@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Signup({ onSwitchToLogin, onClose, onSignupSuccess }) {
+function Signup({ onSwitchToLogin, onClose, onSignupSuccess, paymentData }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,17 +38,25 @@ function Signup({ onSwitchToLogin, onClose, onSignupSuccess }) {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://storeinventory-backend.onrender.com'
       
+      const requestBody = {
+        username: formData.email,
+        email: formData.email,
+        password: formData.password,
+        first_name: formData.name
+      }
+
+      // Include payment data if available
+      if (paymentData) {
+        requestBody.plan = paymentData.plan
+        requestBody.payment_reference = paymentData.transactionId
+      }
+      
       const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: formData.email,
-          email: formData.email,
-          password: formData.password,
-          first_name: formData.name
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
@@ -104,6 +112,19 @@ function Signup({ onSwitchToLogin, onClose, onSignupSuccess }) {
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">🏪 Store Inventory</h1>
               <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
+              
+              {/* Payment Success Message */}
+              {paymentData && (
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-green-700 font-medium">Payment Confirmed!</span>
+                    <span className="text-green-600 text-sm">₱{paymentData.amount}</span>
+                  </div>
+                  <p className="text-green-600 text-sm mt-1">
+                    {paymentData.plan} Plan • Ref: {paymentData.transactionId}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Error Message */}
@@ -113,7 +134,7 @@ function Signup({ onSwitchToLogin, onClose, onSignupSuccess }) {
               </div>
             )}
 
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -196,12 +217,13 @@ function Signup({ onSwitchToLogin, onClose, onSignupSuccess }) {
                       Creating account...
                     </div>
                   ) : (
-                    'Create account'
+                    'Complete Registration'
                   )}
                 </button>
                 <p className="mt-4 text-sm text-gray-600">
                   Already have an account?{' '}
                   <button
+                    type="button"
                     onClick={onSwitchToLogin}
                     className="font-medium text-blue-600 hover:text-blue-500 transition"
                     disabled={loading}
