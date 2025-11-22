@@ -3,6 +3,7 @@ import Header from './components/Header.jsx'
 import UserDashboard from './pages/UserDashboard.jsx'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
+import Footer from './components/Footer.jsx'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -104,8 +105,11 @@ function App() {
   return (
     <div>
       {renderCurrentView()}
+      <Footer />
     </div>
   )
 }
+
+
 
 export default App
